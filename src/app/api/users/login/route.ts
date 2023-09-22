@@ -3,63 +3,52 @@ import User from "@/models/user.schema";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+
 connect();
 
-// handle Post request
 export async function POST(request: NextRequest) {
   try {
-    // Response from frontend
-    const reqbody = await request.json();
-    const { email, password } = reqbody;
-    console.log(`email is ${email} and password is ${password}`);
+    const reqBody = await request.json();
+    const { email, password } = reqBody;
+    console.log(reqBody);
 
-    // check if user exist or not
-    const userExist = await User.findOne({ email });
-    if (!userExist) {
+    //check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
       return NextResponse.json(
-        { error: "User does not Exist " },
+        { error: "User does not exist" },
         { status: 400 }
       );
     }
+    console.log("user exists");
 
-    // check if password is correct
-    const validPassword = await bcryptjs.compare(password, userExist.password);
+    //check if password is correct
+    const validPassword = await bcryptjs.compare(password, user.password);
     if (!validPassword) {
-      NextResponse.json(
-        { error: "Invalid Password Please Check" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
+    console.log(user);
 
-    // create token data like what data we need to pass in token
+    //create token data
     const tokenData = {
-      id: userExist._id,
-      username: userExist.username,
-      email: userExist.email,
+      id: user._id,
+      username: user.username,
+      email: user.email,
     };
-
-    // create jwt  token
+    //create token
     const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
       expiresIn: "1d",
     });
 
-    // store it in a cookies
     const response = NextResponse.json({
-      message: "login Suesfully",
-      sucess: true,
+      message: "Login successful",
+      success: true,
     });
-
-    //  setting cookies in response
     response.cookies.set("token", token, {
       httpOnly: true,
     });
-
-    // now return response to frontend
     return response;
   } catch (error: any) {
-    return NextResponse.json(
-      { error: "An Error Occured during login" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
