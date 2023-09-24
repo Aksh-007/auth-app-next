@@ -63,6 +63,15 @@ export default function LoginPage() {
     setShowPassword(!showPassword);
   };
 
+  // function to clear all fields
+  const clearAllFields = () => {
+    setUser({
+      ...user,
+      email: "",
+      password: "",
+    });
+  };
+
   return (
     <>
       <Toaster />
@@ -165,6 +174,7 @@ export default function LoginPage() {
                 >
                   Login
                 </button>
+
                 <Link
                   href={"/signup"}
                   className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
@@ -172,6 +182,12 @@ export default function LoginPage() {
                   Sign Up
                 </Link>
               </form>
+              <button
+                className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded text-[1rem]"
+                onClick={clearAllFields}
+              >
+                Clear Fields
+              </button>
             </div>
           </div>
         </section>
